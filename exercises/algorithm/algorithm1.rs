@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -29,13 +28,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: std::cmp::PartialOrd + Clone> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: std::cmp::PartialOrd + Clone> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -71,12 +70,34 @@ impl<T> LinkedList<T> {
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut res_list = LinkedList::<T>::new();
+        let mut start_a = list_a.start;
+        let mut start_b = list_b.start;
+        while let (Some(have_a), Some(have_b)) = (start_a, start_b){
+            unsafe{
+                if have_a.as_ref().val <= have_b.as_ref().val {
+                    res_list.add(have_a.as_ref().val.clone());
+                    start_a = (*have_a.as_ptr()).next;
+                }else{
+                    res_list.add(have_b.as_ref().val.clone());
+                    start_b = (*have_b.as_ptr()).next;
+                }
+            }
         }
+        while let (Some(have_a), None) = (start_a, start_b){
+            unsafe{
+                    res_list.add(have_a.as_ref().val.clone());
+                    start_a = (*have_a.as_ptr()).next;    
+            }
+        }
+        while let (None, Some(have_b)) = (start_a, start_b){
+            unsafe{ 
+                    res_list.add(have_b.as_ref().val.clone());
+                    start_b = (*have_b.as_ptr()).next;
+            }
+        }
+		//TODO
+		res_list
 	}
 }
 
